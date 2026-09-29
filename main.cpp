@@ -3,16 +3,28 @@
 #include <QQuickStyle>
 #include <QUrl>
 #include <QQmlContext>
-#include "UserInfoModel.h"
-#include "CableTestPara.h"
-#include "TestProjectConfig.h"
-#include "ControlPanelManager.h"
+#include "userinfomodel.h"
+#include "cabletestpara.h"
+#include "testprojectconfig.h"
+#include "controlpanelmanager.h"
+
+#ifdef Q_OS_LINUX
+#include <signal.h>
+#endif
 
 using namespace Qt::StringLiterals;
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+
+#ifdef Q_OS_LINUX
+    auto quitHandler = [](int) {
+        QCoreApplication::quit();
+    };
+    signal(SIGINT, quitHandler);
+    signal(SIGTERM, quitHandler);
+#endif
 
     // QQuickStyle::setStyle("basic");
     QQuickStyle::setStyle("Material");
@@ -22,6 +34,8 @@ int main(int argc, char *argv[])
     CableTestPara cablePara;
     TestProjectConfig testConfig;
     ControlPanelManager controlManager;
+    controlManager.setTestConfig(&testConfig);
+    controlManager.setCablePara(&cablePara);
 
     QQmlApplicationEngine engine;
 

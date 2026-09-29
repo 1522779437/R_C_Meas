@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
 import Qt.labs.folderlistmodel
 
 Dialog {
@@ -31,10 +30,6 @@ Dialog {
         radius: 8
         border.color: "#2C3E50"
         border.width: 1
-        layer.enabled: true
-        layer.effect: DropShadow {
-            radius: 15; samples: 20; color: "#60000000"; verticalOffset: 5
-        }
     }
 
     contentItem: ColumnLayout {

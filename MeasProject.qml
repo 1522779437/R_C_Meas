@@ -11,10 +11,19 @@ Rectangle {
     border.color: "#DCDDE1"
     border.width: 1
 
-    // 状态属性
-    // property bool checkDC: false
-    // property bool checkIns: false
-    // property bool checkCap: false
+    // 只有空闲状态(0)才允许修改配置，工作(1)和暂停(2)时禁止
+    readonly property bool allowConfig: controlMgr.workState === 0
+
+    // 信号电缆6/8/9芯、数字信号电缆6芯时不测量工作电容
+    readonly property bool allowCap: !(
+        (cableParaModel.selectedCableType === "信号电缆"
+         && (cableParaModel.cableCoreCount === 6
+          || cableParaModel.cableCoreCount === 8 || cableParaModel.cableCoreCount === 9))
+        || (cableParaModel.selectedCableType === "数字信号电缆" && cableParaModel.cableCoreCount === 6)
+    )
+    onAllowCapChanged: {
+        if (!allowCap) testConfig.checkCap = false
+    }
 
     ColumnLayout {
         id: contentColumn
@@ -24,7 +33,7 @@ Rectangle {
         anchors.margins: 20
         spacing: 30
 
-        // --- 1. 标题 ---
+        // --- 1. 标题 (保持靠左) ---
         RowLayout {
             spacing: 12
             Rectangle { width: 4; height: 20; color: "#2C3E50"; radius: 2 }
@@ -34,11 +43,11 @@ Rectangle {
             }
         }
 
-        // --- 2. 项目显示区 ---
+        // --- 2. 项目显示区 (整体居中) ---
         RowLayout {
-            Layout.fillWidth: true
-            Layout.leftMargin: 20
-            spacing: 30 // 项目之间的间距
+            // 【关键修改】：让整个 RowLayout 在 ColumnLayout 中居中
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 50 // 可以适当调大间距，让居中后的视觉效果更舒展
 
             // ==========================================
             // 1. 直流电阻
@@ -46,6 +55,8 @@ Rectangle {
             Item {
                 implicitWidth: 120
                 implicitHeight: 110
+
+                HoverHandler { cursorShape: allowConfig ? Qt.PointingHandCursor : Qt.ArrowCursor }
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -55,6 +66,13 @@ Rectangle {
                         id: diagDC
                         width: 80; height: 50; Layout.alignment: Qt.AlignHCenter
                         property color iconColor: testConfig.checkDC ? "#2980B9" : "#DCDDE1"
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: allowConfig ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            enabled: allowConfig
+                            onClicked: testConfig.checkDC = !testConfig.checkDC
+                        }
 
                         // 直流符号 (DC)
                         Column {
@@ -88,13 +106,10 @@ Rectangle {
                     CustomCheckBox {
                         text: "直流电阻"
                         checked: testConfig.checkDC
+                        enabled: allowConfig
                         Layout.alignment: Qt.AlignHCenter
+                        onClicked: testConfig.checkDC = !testConfig.checkDC
                     }
-                }
-                // 透明遮罩层：点击整个区域触发
-                MouseArea {
-                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                    onClicked: testConfig.checkDC = !testConfig.checkDC
                 }
             }
 
@@ -105,6 +120,8 @@ Rectangle {
                 implicitWidth: 120
                 implicitHeight: 110
 
+                HoverHandler { cursorShape: allowConfig ? Qt.PointingHandCursor : Qt.ArrowCursor }
+
                 ColumnLayout {
                     anchors.fill: parent
                     spacing: 15
@@ -113,6 +130,13 @@ Rectangle {
                         id: diagIns
                         width: 80; height: 50; Layout.alignment: Qt.AlignHCenter
                         property color iconColor: testConfig.checkIns ? "#2980B9" : "#DCDDE1"
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: allowConfig ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            enabled: allowConfig
+                            onClicked: testConfig.checkIns = !testConfig.checkIns
+                        }
 
                         // MΩ 兆欧电阻体
                         Rectangle {
@@ -145,12 +169,10 @@ Rectangle {
                     CustomCheckBox {
                         text: "绝缘电阻"
                         checked: testConfig.checkIns
+                        enabled: allowConfig
                         Layout.alignment: Qt.AlignHCenter
+                        onClicked: testConfig.checkIns = !testConfig.checkIns
                     }
-                }
-                MouseArea {
-                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                    onClicked: testConfig.checkIns = !testConfig.checkIns
                 }
             }
 
@@ -161,6 +183,8 @@ Rectangle {
                 implicitWidth: 120
                 implicitHeight: 110
 
+                HoverHandler { cursorShape: (allowConfig && allowCap) ? Qt.PointingHandCursor : Qt.ArrowCursor }
+
                 ColumnLayout {
                     anchors.fill: parent
                     spacing: 15
@@ -169,6 +193,13 @@ Rectangle {
                         id: diagCap
                         width: 80; height: 50; Layout.alignment: Qt.AlignHCenter
                         property color iconColor: testConfig.checkCap ? "#2980B9" : "#DCDDE1"
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: (allowConfig && allowCap) ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            enabled: allowConfig && allowCap
+                            onClicked: testConfig.checkCap = !testConfig.checkCap
+                        }
 
                         // 标准电容器符号 --| |--
                         Item {
@@ -198,21 +229,18 @@ Rectangle {
                     CustomCheckBox {
                         text: "工作电容"
                         checked: testConfig.checkCap
+                        enabled: allowConfig && allowCap
                         Layout.alignment: Qt.AlignHCenter
+                        onClicked: testConfig.checkCap = !testConfig.checkCap
                     }
-
-                }
-                MouseArea {
-                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                    onClicked: testConfig.checkCap = !testConfig.checkCap
                 }
             }
 
-            Item { Layout.fillWidth: true } // 右侧留白弹簧
+            // 【关键修改】：这里删除了原本的 Item { Layout.fillWidth: true } 弹簧，以保证真实居中
         }
     }
 
-    // --- 通用自定义复选框组件 (禁用自身点击，全权交由外部 MouseArea 控制) ---
+    // --- 通用自定义复选框组件 ---
     component CustomCheckBox: CheckBox {
         id: control
 
@@ -239,12 +267,12 @@ Rectangle {
             }
         }
 
-        // 内容（用 Row 保证绝对对齐）
+        // 内容
         contentItem: Row {
             spacing: control.spacing
             anchors.verticalCenter: parent.verticalCenter
 
-            // 给 indicator 留位置（关键点）
+            // 给 indicator 留位置
             Item {
                 width: control.indicator.width
                 height: 1

@@ -6,11 +6,11 @@ import QtMultimedia // 必须导入
 Window {
     id: rootWindow
     width: 1100
-    height: 800
+    height: 750
     visible: true
     title: qsTr("电缆检测系统")
     minimumWidth: 1100
-    minimumHeight: 800
+    minimumHeight: 750
 
     // --- 逻辑控制变量 ---
     property bool isVideoFinished: false
@@ -37,7 +37,7 @@ Window {
             }
 
             // 错误处理（防止视频损坏导致程序卡死）
-            onErrorOccurred: (error, errorString) => {
+            onErrorOccurred: {
                 console.log("Video Error: " + errorString)
                 enterMainUI()
             }

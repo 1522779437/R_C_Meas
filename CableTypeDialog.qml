@@ -1,8 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
-
 Dialog {
     id: root
     // title: "电缆类型"
@@ -22,13 +20,6 @@ Dialog {
         border.color: "#2C3E50"
         border.width: 1
 
-        layer.enabled: true
-        layer.effect: DropShadow {
-            radius: 15
-            samples: 20
-            color: "#60000000"
-            verticalOffset: 5
-        }
     }
 
     contentItem: ColumnLayout {
@@ -48,7 +39,7 @@ Dialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            model: ["信号电缆", "数字信号电缆", "内屏蔽数字信号电缆"]
+            model: ["信号电缆", "数字信号电缆", "内屏蔽数字信号电缆", "室内通信电缆", "其它电缆"]
 
             delegate: ItemDelegate {
                 width: parent.width
@@ -138,14 +129,6 @@ Dialog {
                 radius: height / 2 // 完美圆角
 
                 // 加入一个微妙的阴影效果（可选）
-                layer.enabled: true
-                layer.effect: DropShadow {
-                    transparentBorder: true
-                    radius: 8
-                    samples: 16
-                    verticalOffset: 2
-                    color: okButton.hovered ? "#402980B9" : "#20000000"
-                }
 
                 Behavior on color { ColorAnimation { duration: 150 } }
             }

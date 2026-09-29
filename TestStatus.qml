@@ -88,7 +88,16 @@ Rectangle {
                             spacing: 4
                             Rectangle {
                                 width: 14; height: 14; radius: 6
-                                color: "#BDC3C7"; border.color: "#7F8C8D"
+                                color: {
+                                    var board = Math.floor(index / 16)
+                                    var bit = 1 << (index % 16)
+                                    var active = false
+                                    if (board === 0) active = (controlMgr.wireLeftSelection1State & bit) !== 0
+                                    else if (board === 1) active = (controlMgr.wireLeftSelection2State & bit) !== 0
+                                    else if (board === 2) active = (controlMgr.wireLeftSelection3State & bit) !== 0
+                                    return active ? "#E74C3C" : "#BDC3C7"
+                                }
+                                border.color: "#7F8C8D"
                             }
                             Text {
                                 text: "CH" + (index + 1)
@@ -142,7 +151,16 @@ Rectangle {
                             spacing: 4
                             Rectangle {
                                 width: 14; height: 14; radius: 6
-                                color: "#BDC3C7"; border.color: "#7F8C8D"
+                                color: {
+                                    var board = Math.floor(index / 16)
+                                    var bit = 1 << (index % 16)
+                                    var active = false
+                                    if (board === 0) active = (controlMgr.wireRightSelection1State & bit) !== 0
+                                    else if (board === 1) active = (controlMgr.wireRightSelection2State & bit) !== 0
+                                    else if (board === 2) active = (controlMgr.wireRightSelection3State & bit) !== 0
+                                    return active ? "#E74C3C" : "#BDC3C7"
+                                }
+                                border.color: "#7F8C8D"
                             }
                             Text {
                                 text: "CH" + (index + 1)
